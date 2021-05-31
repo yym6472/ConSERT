@@ -1,0 +1,10 @@
+torch==1.6.0
+cudatoolkit==10.0.103
+cudnn==7.6.5
+sentence-transformers==0.3.9
+transformers==3.4.0
+tensorboardX==2.1
+pandas==1.1.5
+sentencepiece==0.1.85
+matplotlib==3.4.1
+apex
