@@ -9,7 +9,7 @@
 /output
 /final_output
 /analysis
-/data
+/data/downstream
 __pycache__
 *.pyc
 tmp
