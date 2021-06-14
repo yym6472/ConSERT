@@ -22,4 +22,4 @@ nohup.*
 /make_figures
 /figures
 make_figures.py
-*.sh
+all.sh

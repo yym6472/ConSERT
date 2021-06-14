@@ -17,15 +17,48 @@ matplotlib==3.4.1
 apex==0.1.0
 ```
 
+To install apex, run:
+```
+git clone https://github.com/NVIDIA/apex
+cd apex
+pip install -v --disable-pip-version-check --no-cache-dir ./
+```
+
 ## Get Started
 
-1. Download pre-trained language model (e.g. bert-base-uncased) from [HuggingFace's Library](https://huggingface.co/bert-base-uncased)
+1. Download pre-trained language model (e.g. bert-base-uncased) to folder `./bert-base-uncased` from [HuggingFace's Library](https://huggingface.co/bert-base-uncased)
 2. Download STS datasets to `./data` folder by running `cd data && bash get_transfer_data.bash`. The script is modified from [SentEval toolkit](https://github.com/facebookresearch/SentEval/blob/master/data/downstream/get_transfer_data.bash)
-3. Use the following script to run the unsupervised experiment:
+3. Run the scripts in the folder `./scripts` to reproduce our experiments. For example, run the following script to train unsupervised consert-base:
     ```bash
-    python3 main.py --no_pair --seed 1 --use_apex_amp --apex_amp_opt_level O1 --batch_size 96 --max_seq_length 64 --evaluation_steps 200 --add_cl --cl_loss_only --cl_rate 0.15 --temperature 0.1 --learning_rate 0.0000005 --train_data stssick --num_epochs 10 --da_final_1 feature_cutoff --da_final_2 shuffle --cutoff_rate_final_1 0.2 --model_name_or_path [PRETRAINED_BERT_FOLDER] --model_save_path ./output/unsup-base-feature_cutoff-shuffle --force_del --no_dropout --patience 10
+    bash scripts/unsup-consert-base.sh
     ```
-    where `[PRETRAINED_BERT_FOLDER]` should be replaced to the folder that contains downloaded pre-trained language model
+
+## Pre-trained Models & Results
+
+### English STS Tasks
+
+| ID | Model                                                         | STS12 | STS13 | STS14 | STS15 | STS16 | STSb | SICK-R | Avg. |
+|----|---------------------------------------------------------------|:-----:|:-----:|:-----:|:-----:|:-----:|:----:|:------:|:----:|
+| 1  | unsup-consert-base [\[Google Drive\]](https://drive.google.com/file/d/1KIbrhhIfhxO_4b0tbpdhLGkrjr_bhlaa/view?usp=sharing) [\[百度云q571\]](https://pan.baidu.com/s/1Nh_ypA-kP2cXIt3DE_0aXg)            |   64.64    |  78.49     |  69.07     | 79.72      |  75.95     |  73.97    |   67.31     |  72.74    |
+| 2  | unsup-consert-large [\[Google Drive\]]() [\[百度云\]]()           |  70.28     |   83.23    |  73.80     |  82.73     |    77.14   |  77.74    |  70.19      |  76.45    |
+| 3  | sup-sbert-base (re-impl.) [\[Google Drive\]]() [\[百度云\]]()     |       |       |       |       |       |      |        |      |
+| 4  | sup-sbert-large (re-impl.) [\[Google Drive\]]() [\[百度云\]]()    |       |       |       |       |       |      |        |      |
+| 5  | sup-consert-joint-base [\[Google Drive\]]() [\[百度云\]]()        |       |       |       |       |       |      |        |      |
+| 6  | sup-consert-joint-large [\[Google Drive\]]() [\[百度云\]]()       |       |       |       |       |       |      |        |      |
+| 7  | sup-consert-sup-unsup-base [\[Google Drive\]]() [\[百度云\]]()    |       |       |       |       |       |      |        |      |
+| 8  | sup-consert-sup-unsup-large [\[Google Drive\]]() [\[百度云\]]()   |       |       |       |       |       |      |        |      |
+| 9  | sup-consert-joint-unsup-base [\[Google Drive\]]() [\[百度云\]]()  |       |       |       |       |       |      |        |      |
+| 10 | sup-consert-joint-unsup-large [\[Google Drive\]]() [\[百度云\]]() |       |       |       |       |       |      |        |      |
+
+Note:
+1. All the *base* models are trained from `bert-base-uncased` and the *large* models are trained from `bert-large-uncased`.
+2. For the unsupervised transfer, we merge all unlabeled texts from 7 STS datasets (STS12-16, STSbenchmark and SICK-Relatedness) as the training data (total 89192 sentences), and use the STSbenchmark dev split (including 1500 human-annotated sentence pairs) to select the best checkpoint.
+3. The sentence representations are obtained by averaging the token embeddings at the last two layers of BERT.
+4. For model 2 to 10, we re-trained them on a single GeForce RTX 3090 with pytorch 1.8.1 and cuda 11.1 (rather than V100, pytorch 1.6.0 and cuda 10.0 in our initial experiments) and changed the `max_seq_length` from 64 to 40 to reduce the required GPU memory (only for *large* models). Consequently, the results shown here may be slightly different from those reported in our paper.
+
+### Chinese STS Tasks
+
+To be added.
 
 ## Citation
 ```

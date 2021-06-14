@@ -312,8 +312,8 @@ def main(args):
 
     if args.chinese_dataset == "none":
         # Test on unsupervised dataset (mainly STS related dataset)
-        eval_nli_unsup(model_save_path, main_similarity=None)
-        eval_nli_unsup(model_save_path, main_similarity=None, last2avg=True)
+        eval_nli_unsup(model_save_path, main_similarity=SimilarityFunction.COSINE)
+        eval_nli_unsup(model_save_path, main_similarity=SimilarityFunction.COSINE, last2avg=True)
         corr_visualization(model_save_path)
     else:
         for dataset_name in ("atec_ccks", "bq", "lcqmc", "pawsx", "stsb"):
