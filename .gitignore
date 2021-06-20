@@ -3,6 +3,8 @@
 /bert-large-uncased
 /bert-base-chinese
 /bert-large-chinese
+/chinese-roberta-wwm-ext
+/chinese-roberta-wwm-ext-large
 /declutr-base
 /pretrain_model
 /datasets
@@ -10,6 +12,7 @@
 /final_output
 /analysis
 /data/downstream
+/data/chinese
 __pycache__
 *.pyc
 tmp

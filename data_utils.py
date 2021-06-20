@@ -221,7 +221,7 @@ def load_datasets(datasets=None, need_label=False, use_all_unsupervised_texts=Tr
 def load_chinese_tsv_data(dataset_name, split, max_num_samples=None):
     assert dataset_name in ("atec_ccks", "bq", "lcqmc", "pawsx", "stsb")
     assert split in ("train", "dev", "test")
-    base_data_path = "./datasets/chinese"
+    base_data_path = "./data/chinese"
     data_file = os.path.join(base_data_path, dataset_name, f"{split}.tsv")
     all_samples = []
     with open(data_file) as f:
