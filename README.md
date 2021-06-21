@@ -26,12 +26,24 @@ pip install -v --disable-pip-version-check --no-cache-dir ./
 
 ## Get Started
 
+### English STS Tasks
+
 1. Download pre-trained language model (e.g. bert-base-uncased) to folder `./bert-base-uncased` from [HuggingFace's Library](https://huggingface.co/bert-base-uncased)
 2. Download STS datasets to `./data` folder by running `cd data && bash get_transfer_data.bash`. The script is modified from [SentEval toolkit](https://github.com/facebookresearch/SentEval/blob/master/data/downstream/get_transfer_data.bash)
 3. Run the scripts in the folder `./scripts` to reproduce our experiments. For example, run the following script to train unsupervised consert-base:
     ```bash
     bash scripts/unsup-consert-base.sh
     ```
+
+### Chinese STS Tasks
+
+1. Download the pre-trained language model (e.g. chinese-roberta-wwm-ext) to folder `./chinese-roberta-wwm-ext` from [HuggingFace's Library](https://huggingface.co/hfl/chinese-roberta-wwm-ext)
+2. Download the chinese STS datasets to `./data` folder by running `cd data && bash get_chinese_sts_data.bash`
+3. Run the scripts in the folder `./scripts/chinese` to train models for chinese STS tasks. For example, run the following script to train *base* model for `atec_ccks` task:
+    ```bash
+    bash scripts/unsup-consert-base-atec_ccks.sh
+    ```
+   The `--chinese_dataset` option in `main.py` is used to select which chinese STS dataset to use.
 
 ## Pre-trained Models & Results
 
@@ -60,7 +72,26 @@ Note:
 
 ### Chinese STS Tasks
 
-To be added.
+| ID | Model                              | atec_ccks | bq | lcqmc | pawsx | stsb |
+|----|------------------------------------|:-----:|:-----:|:-----:|:-----:|:-----:|
+| -  | chinese-roberta-wwm-ext (baseline) | 11.28 | 40.21 | 59.89 | 09.35 | 60.86 |
+| -  | chinese-roberta-wwm-ext-large (baseline) | 13.75 | 36.77 | 60.36 | 09.94 | 58.72 |
+| 1  | unsup-consert-base-atec_ccks  | **27.39** | 47.61 | 60.70  | 08.17 | 64.74 |
+| 2  | unsup-consert-base-bq         | 11.55 | **47.20** | 61.47  | 08.47 | 64.44 |
+| 3  | unsup-consert-base-lcqmc      | 04.57 | 38.15 | **67.34**  | 08.80 | 67.78 |
+| 4  | unsup-consert-base-pawsx      | 08.66 | 38.35 | 61.97  | **09.36** | 63.89 |
+| 5  | unsup-consert-base-stsb       | 07.29 | 40.81 | 67.39  | 06.24  | **72.82** |
+| 6  | unsup-consert-large-atec_ccks | **29.92** | 47.50 | 59.83 | 09.72 | 66.37 |
+| 7  | unsup-consert-large-bq        | 15.47 | **47.08** | 60.10 | 10.04 | 66.94 |
+| 8  | unsup-consert-large-lcqmc     | 11.40 | 37.79 | **66.45** | 10.81 | 67.68 |
+| 9  | unsup-consert-large-pawsx     | 11.25 | 36.25 | 65.15 | **11.38** | 67.45 |
+| 10 | unsup-consert-large-stsb      | 08.00 | 40.85 | 67.72 | 10.13 | **74.50** |
+
+Note:
+1. All the *base* models are trained from `hfl/chinese-roberta-wwm-ext` and the *large* models are trained from `hfl/chinese-roberta-wwm-ext-large`. 
+2. For each model, we train it on *single* chinese STS dataset but evaluate it on all 5 datasets. **The bold numbers** indicate that the model is evaluated on the same dataset it trained on.
+3. The sentence representations are also obtained by averaging the token embeddings at the last two layers of BERT.
+4. For *base* models, we set `batch_size` to 96 and `max_seq_length` to 64, while for *large* models, we set `batch_size` to 32 and `max_seq_length` to 40 to reduce the required GPU memory.
 
 ## Citation
 ```
