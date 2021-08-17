@@ -41,7 +41,7 @@ pip install -v --disable-pip-version-check --no-cache-dir ./
 2. Download the chinese STS datasets to `./data` folder by running `cd data && bash get_chinese_sts_data.bash`
 3. Run the scripts in the folder `./scripts/chinese` to train models for chinese STS tasks. For example, run the following script to train *base* model for `atec_ccks` task:
     ```bash
-    bash scripts/unsup-consert-base-atec_ccks.sh
+    bash scripts/chinese/unsup-consert-base-atec_ccks.sh
     ```
    The `--chinese_dataset` option in `main.py` is used to select which chinese STS dataset to use.
 
