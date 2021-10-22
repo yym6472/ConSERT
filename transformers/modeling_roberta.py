@@ -17,6 +17,7 @@
 
 import math
 import warnings
+from typing import Optional, Tuple, Any
 
 import torch
 import torch.nn as nn
@@ -671,9 +672,19 @@ class RobertaModel(RobertaPreTrainedModel):
         # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x seq_length x seq_length]
         head_mask = self.get_head_mask(head_mask, self.config.num_hidden_layers)
 
+        # Custom added, for data augmentation
+        position_ids = self._replace_position_ids(input_ids, position_ids, attention_mask)  # replace the position ids, since data augmentation includes "shuffle"
+        input_ids, position_ids, attention_mask = self._sample_span(input_ids, position_ids, attention_mask) # sample a span, data augmentation includes "span"
+        # ----- Custom added END ------------
+        
         embedding_output = self.embeddings(
             input_ids=input_ids, position_ids=position_ids, token_type_ids=token_type_ids, inputs_embeds=inputs_embeds
         )
+        
+        # Custom added, for data augmentation
+        self._most_recent_embedding_output = embedding_output  # every time call forward, record the embedding output here
+        embedding_output = self._replace_embedding_output(embedding_output, attention_mask)  # replace the embedding output, using different data augmentation strategies
+        # ----- Custom added END ------------
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
@@ -696,6 +707,144 @@ class RobertaModel(RobertaPreTrainedModel):
             hidden_states=encoder_outputs.hidden_states,
             attentions=encoder_outputs.attentions,
         )
+
+    # custom added functions for data augmentation
+    def set_flag(self, key: str, value: Any):
+        assert f"flag__{key}" not in self.__dict__
+        self.__dict__[f"flag__{key}"] = value
+    
+    def unset_flag(self, key: str):
+        assert f"flag__{key}" in self.__dict__
+        del self.__dict__[f"flag__{key}"]
+    
+    def exists_flag(self, key: str):
+        return f"flag__{key}" in self.__dict__
+    
+    def get_flag(self, key: str):
+        assert f"flag__{key}" in self.__dict__
+        return self.__dict__[f"flag__{key}"]
+    
+    def get_most_recent_embedding_output(self):
+        return self._most_recent_embedding_output
+    
+    def _replace_embedding_output(self, embedding_output, attention_mask):
+        bsz, seq_len, emb_size = embedding_output.shape
+        if self.exists_flag("data_aug_adv"):
+            noise_embedding = self.get_flag("noise_embedding")
+            assert noise_embedding.shape == embedding_output.shape, (noise_embedding.shape, embedding_output.shape)
+            self.unset_flag("noise_embedding")
+            self.unset_flag("data_aug_adv")
+            return noise_embedding
+        elif self.exists_flag("data_aug_cutoff"):
+            direction = self.get_flag("data_aug_cutoff.direction")
+            assert direction in ("row", "column", "random")  # "row" for the token level, "column" for the feature level, and "random" means randomly pick elements in embedding matrix and not restricted in row or column
+            rate = self.get_flag("data_aug_cutoff.rate")
+            assert isinstance(rate, float) and 0.0 < rate < 1.0
+            self.unset_flag("data_aug_cutoff")
+            self.unset_flag("data_aug_cutoff.direction")
+            self.unset_flag("data_aug_cutoff.rate")
+            embedding_after_cutoff = self._cutoff_embeddings(embedding_output, attention_mask, direction, rate)
+            return embedding_after_cutoff
+        elif self.exists_flag("data_aug_shuffle_embeddings"):
+            self.unset_flag("data_aug_shuffle_embeddings")
+            shuffled_embeddings = []
+            for bsz_id in range(bsz):
+                sample_embedding = embedding_output[bsz_id]
+                sample_mask = attention_mask[bsz_id]
+                num_tokens = sample_mask.sum().int().item()
+                indexes = list(range(num_tokens))
+                import random
+                random.shuffle(indexes)
+                rest_indexes = list(range(num_tokens, seq_len))
+                total_indexes = indexes + rest_indexes
+                shuffled_embeddings.append(torch.index_select(sample_embedding, 0, torch.tensor(total_indexes).to(device=embedding_output.device)).unsqueeze(0))
+            return torch.cat(shuffled_embeddings, 0)
+        else:
+            return embedding_output
+        
+    def _replace_position_ids(self, input_ids, position_ids, attention_mask):
+        bsz, seq_len = input_ids.shape
+        if self.exists_flag("data_aug_shuffle"):
+            self.unset_flag("data_aug_shuffle")
+            
+            if position_ids is None:
+                position_ids = torch.arange(512).expand((bsz, -1))[:, :seq_len].to(device=input_ids.device)
+            
+            # shuffle position_ids
+            shuffled_pid = []
+            for bsz_id in range(bsz):
+                sample_pid = position_ids[bsz_id]
+                sample_mask = attention_mask[bsz_id]
+                num_tokens = sample_mask.sum().int().item()
+                indexes = list(range(num_tokens))
+                import random
+                random.shuffle(indexes)
+                rest_indexes = list(range(num_tokens, seq_len))
+                total_indexes = indexes + rest_indexes
+                shuffled_pid.append(torch.index_select(sample_pid, 0, torch.tensor(total_indexes).to(device=input_ids.device)).unsqueeze(0))
+            return torch.cat(shuffled_pid, 0)
+        else:
+            return position_ids
+        
+    def _sample_span(self, input_ids, position_ids, attention_mask):
+        bsz, seq_len = input_ids.shape
+        sample_rate = 0
+        if self.exists_flag("data_aug_span"):
+            sample_rate = self.get_flag("data_aug_span.rate")
+            self.unset_flag("data_aug_span")
+            self.unset_flag("data_aug_span.rate")
+        
+        if sample_rate>0:
+            true_seq_len = attention_mask.sum(1).cpu().numpy()
+            mask = []
+            for true_len in true_seq_len:
+                sample_len = max(int(true_len*(1-sample_rate)), 1)
+                start_id = np.random.randint(0, high=true_len-sample_len+1)
+                tmp = [1]*seq_len
+                for idx in range(start_id, start_id+sample_len):
+                    tmp[idx]=0
+                mask.append(tmp)
+                
+            mask = torch.ByteTensor(mask).bool().cuda()
+            
+            input_ids = input_ids.masked_fill(mask, value=0)
+            attention_mask = attention_mask.masked_fill(mask, value=0)
+            
+        return input_ids, position_ids, attention_mask
+        
+    def _cutoff_embeddings(self, embedding_output, attention_mask, direction, rate):
+        bsz, seq_len, emb_size = embedding_output.shape
+        cutoff_embeddings = []
+        for bsz_id in range(bsz):
+            sample_embedding = embedding_output[bsz_id]
+            sample_mask = attention_mask[bsz_id]
+            if direction == "row":
+                num_dimensions = sample_mask.sum().int().item()  # number of tokens
+                dim_index = 0
+            elif direction == "column":
+                num_dimensions = emb_size  # number of features
+                dim_index = 1
+            elif direction == "random":
+                num_dimensions = sample_mask.sum().int().item() * emb_size
+                dim_index = 0
+            else:
+                raise ValueError(f"direction should be either row or column, but got {direction}")
+            num_cutoff_indexes = int(num_dimensions * rate)
+            if num_cutoff_indexes < 0 or num_cutoff_indexes > num_dimensions:
+                raise ValueError(f"number of cutoff dimensions should be in (0, {num_dimensions}), but got {num_cutoff_indexes}")
+            indexes = list(range(num_dimensions))
+            import random
+            random.shuffle(indexes)
+            cutoff_indexes = indexes[:num_cutoff_indexes]
+            if direction == "random":
+                sample_embedding = sample_embedding.reshape(-1)
+            cutoff_embedding = torch.index_fill(sample_embedding, dim_index, torch.tensor(cutoff_indexes, dtype=torch.long).to(device=embedding_output.device), 0.0)
+            if direction == "random":
+                cutoff_embedding = cutoff_embedding.reshape(seq_len, emb_size)
+            cutoff_embeddings.append(cutoff_embedding.unsqueeze(0))
+        cutoff_embeddings = torch.cat(cutoff_embeddings, 0)
+        assert cutoff_embeddings.shape == embedding_output.shape, (cutoff_embeddings.shape, embedding_output.shape)
+        return cutoff_embeddings
 
 
 @add_start_docstrings(

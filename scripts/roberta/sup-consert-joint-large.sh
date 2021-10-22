@@ -1,0 +1,1 @@
+python3 main.py --model_name_or_path ./roberta-large/ --seed 1 --use_apex_amp --apex_amp_opt_level O1 --batch_size 96 --max_seq_length 40 --evaluation_steps 200 --concatenation_sent_max_square --add_cl --cl_rate 0.15 --temperature 0.1 --data_augmentation_strategy cutoff --cutoff_direction row --cutoff_rate 0.1 --model_save_path ./output/sup-consert-joint-large --force_del

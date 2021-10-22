@@ -5,6 +5,8 @@
 /bert-large-chinese
 /chinese-roberta-wwm-ext
 /chinese-roberta-wwm-ext-large
+/roberta-base
+/roberta-large
 /declutr-base
 /pretrain_model
 /datasets

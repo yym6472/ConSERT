@@ -1,6 +1,6 @@
 # ConSERT
 
-Code for our ACL 2021 paper - [ConSERT: A Contrastive Framework for Self-Supervised Sentence Representation Transfer](https://arxiv.org/abs/2105.11741)
+Code for our ACL 2021 paper - [ConSERT: A Contrastive Framework for Self-Supervised Sentence Representation Transfer](https://aclanthology.org/2021.acl-long.393/)
 
 ## Requirements
 
@@ -34,6 +34,8 @@ pip install -v --disable-pip-version-check --no-cache-dir ./
     ```bash
     bash scripts/unsup-consert-base.sh
     ```
+
+*Update*: Recently we update the support for RoBERTa model. Download the RoBERTa model to folder e.g. `./roberta-base` and use scripts in `./scripts/roberta` instead.
 
 ### Chinese STS Tasks
 
@@ -95,10 +97,23 @@ Note:
 
 ## Citation
 ```
-@article{yan2021consert,
-  title={ConSERT: A Contrastive Framework for Self-Supervised Sentence Representation Transfer},
-  author={Yan, Yuanmeng and Li, Rumei and Wang, Sirui and Zhang, Fuzheng and Wu, Wei and Xu, Weiran},
-  journal={arXiv preprint arXiv:2105.11741},
-  year={2021}
+@inproceedings{yan-etal-2021-consert,
+    title = "{C}on{SERT}: A Contrastive Framework for Self-Supervised Sentence Representation Transfer",
+    author = "Yan, Yuanmeng  and
+      Li, Rumei  and
+      Wang, Sirui  and
+      Zhang, Fuzheng  and
+      Wu, Wei  and
+      Xu, Weiran",
+    booktitle = "Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers)",
+    month = aug,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.acl-long.393",
+    doi = "10.18653/v1/2021.acl-long.393",
+    pages = "5065--5075",
+    abstract = "Learning high-quality sentence representations benefits a wide range of natural language processing tasks. Though BERT-based pre-trained language models achieve high performance on many downstream tasks, the native derived sentence representations are proved to be collapsed and thus produce a poor performance on the semantic textual similarity (STS) tasks. In this paper, we present ConSERT, a Contrastive Framework for Self-Supervised SEntence Representation Transfer, that adopts contrastive learning to fine-tune BERT in an unsupervised and effective way. By making use of unlabeled texts, ConSERT solves the collapse issue of BERT-derived sentence representations and make them more applicable for downstream tasks. Experiments on STS datasets demonstrate that ConSERT achieves an 8{\%} relative improvement over the previous state-of-the-art, even comparable to the supervised SBERT-NLI. And when further incorporating NLI supervision, we achieve new state-of-the-art performance on STS tasks. Moreover, ConSERT obtains comparable results with only 1000 samples available, showing its robustness in data scarcity scenarios.",
 }
+
 ```
