@@ -218,7 +218,7 @@ def load_datasets(datasets=None, need_label=False, use_all_unsupervised_texts=Tr
     logging.info(f"Loaded data from datasets {datasets}, total number of samples {len(all_samples)}")
     return all_samples
 
-def load_chinese_tsv_data(dataset_name, split, max_num_samples=None):
+def load_chinese_tsv_data(dataset_name, split, max_num_samples=None, need_label=False, no_pair=True):
     assert dataset_name in ("atec_ccks", "bq", "lcqmc", "pawsx", "stsb")
     assert split in ("train", "dev", "test")
     base_data_path = "./data/chinese"
@@ -229,8 +229,13 @@ def load_chinese_tsv_data(dataset_name, split, max_num_samples=None):
     for line in lines:
         sent1, sent2, label = line.strip().split("\t")
         if split == "train":
-            all_samples.append(InputExample(texts=[sent1]))
-            all_samples.append(InputExample(texts=[sent2]))
+            if need_label:
+                all_samples.append(InputExample(texts=[sent1, sent2], label=int(label)))
+            elif no_pair:
+                all_samples.append(InputExample(texts=[sent1]))
+                all_samples.append(InputExample(texts=[sent2]))
+            else:
+                all_samples.append(InputExample(texts=[sent1, sent2]))
         else:
             all_samples.append(InputExample(texts=[sent1, sent2], label=float(label)))
     if max_num_samples is not None and max_num_samples < len(all_samples):
