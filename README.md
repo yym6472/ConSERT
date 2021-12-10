@@ -78,16 +78,16 @@ Note:
 |----|------------------------------------|:-----:|:-----:|:-----:|:-----:|:-----:|
 | -  | chinese-roberta-wwm-ext (baseline) | 11.28 | 40.21 | 59.89 | 09.35 | 60.86 |
 | -  | chinese-roberta-wwm-ext-large (baseline) | 13.75 | 36.77 | 60.36 | 09.94 | 58.72 |
-| 1  | unsup-consert-base-atec_ccks  | **27.39** | 47.61 | 60.70  | 08.17 | 64.74 |
-| 2  | unsup-consert-base-bq         | 11.55 | **47.20** | 61.47  | 08.47 | 64.44 |
-| 3  | unsup-consert-base-lcqmc      | 04.57 | 38.15 | **67.34**  | 08.80 | 67.78 |
-| 4  | unsup-consert-base-pawsx      | 08.66 | 38.35 | 61.97  | **09.36** | 63.89 |
-| 5  | unsup-consert-base-stsb       | 07.29 | 40.81 | 67.39  | 06.24  | **72.82** |
-| 6  | unsup-consert-large-atec_ccks | **29.92** | 47.50 | 59.83 | 09.72 | 66.37 |
-| 7  | unsup-consert-large-bq        | 15.47 | **47.08** | 60.10 | 10.04 | 66.94 |
-| 8  | unsup-consert-large-lcqmc     | 11.40 | 37.79 | **66.45** | 10.81 | 67.68 |
-| 9  | unsup-consert-large-pawsx     | 11.25 | 36.25 | 65.15 | **11.38** | 67.45 |
-| 10 | unsup-consert-large-stsb      | 08.00 | 40.85 | 67.72 | 10.13 | **74.50** |
+| 1  | unsup-consert-base-atec_ccks [\[百度云v593\]](https://pan.baidu.com/s/10Elp2EWOquawa4pn3kDgzA)  | **27.39** | 47.61 | 60.70  | 08.17 | 64.74 |
+| 2  | unsup-consert-base-bq [\[百度云cwnu\]](https://pan.baidu.com/s/1gq8XZzoIiv_DIlOiMQQEwg)        | 11.55 | **47.20** | 61.47  | 08.47 | 64.44 |
+| 3  | unsup-consert-base-lcqmc [\[百度云pdax\]](https://pan.baidu.com/s/1OY-EMfON9P2GDg25ikWs-A)      | 04.57 | 38.15 | **67.34**  | 08.80 | 67.78 |
+| 4  | unsup-consert-base-pawsx [\[百度云iko8\]](https://pan.baidu.com/s/1W1KHtOE57AlIfRlA79MrjQ)      | 08.66 | 38.35 | 61.97  | **09.36** | 63.89 |
+| 5  | unsup-consert-base-stsb [\[百度云7r7n\]](https://pan.baidu.com/s/1I3nGw7VNUVXqV79dD3ZDCQ)       | 07.29 | 40.81 | 67.39  | 06.24  | **72.82** |
+| 6  | unsup-consert-large-atec_ccks [\[百度云4zlz\]](https://pan.baidu.com/s/1XzJ_6tAmP_wwAP89e2nsnQ) | **29.92** | 47.50 | 59.83 | 09.72 | 66.37 |
+| 7  | unsup-consert-large-bq [\[百度云gnte\]](https://pan.baidu.com/s/1RBCn5FnwCTJ8q6aTXfQuVQ)        | 15.47 | **47.08** | 60.10 | 10.04 | 66.94 |
+| 8  | unsup-consert-large-lcqmc [\[百度云wetp\]](https://pan.baidu.com/s/11Pvo5D4lghDmiWl-NDjmBQ)     | 11.40 | 37.79 | **66.45** | 10.81 | 67.68 |
+| 9  | unsup-consert-large-pawsx [\[百度云u6t9\]](https://pan.baidu.com/s/1QYxHx7LOEQ0bHwEKI--V1A)     | 11.25 | 36.25 | 65.15 | **11.38** | 67.45 |
+| 10 | unsup-consert-large-stsb [\[百度云8tyz\]](https://pan.baidu.com/s/17daGrOI8Or-O1WDR-cOmKA)      | 08.00 | 40.85 | 67.72 | 10.13 | **74.50** |
 
 Note:
 1. All the *base* models are trained from `hfl/chinese-roberta-wwm-ext` and the *large* models are trained from `hfl/chinese-roberta-wwm-ext-large`. 
